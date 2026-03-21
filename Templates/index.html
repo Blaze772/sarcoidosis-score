@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sarcoidosis Clinical Scoring System</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2f5d8a">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+
+    <style>
+
+        :root {
+            --bg: #eef3f8;
+            --card: #ffffff;
+            --text: #1f2d3d;
+            --muted: #5f6f81;
+            --line: #dbe4ee;
+            --primary: #2f5d8a;
+            --primary-soft: #e9f1f8;
+            --high-bg: #edf6ff;
+            --mid-bg: #f8fbfd;
+            --selected: #eef8ef;
+            --shadow: 0 8px 24px rgba(20, 35, 52, 0.08);
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 28px 24px 40px;
+        }
+
+        .hero {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            margin: 0 0 10px;
+            font-size: 3rem;
+            color: #253d5b;
+        }
+
+        .subtitle {
+            margin: 6px auto 0;
+            max-width: 800px;
+            font-size: 1.05rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .score-legend {
+            margin: 18px auto 0;
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .legend-pill {
+            background: white;
+            border: 1px solid var(--line);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-box input,
+        .filter-box select {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 1rem;
+            background: #fff;
+            min-width: 220px;
+            outline: none;
+        }
+
+        .search-box input:focus,
+        .filter-box select:focus {
+            border-color: var(--primary);
+        }
+
+        .toolbar button {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.98rem;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3d7fcc;
+        }
+
+        .btn-secondary {
+            background: #eef4fa;
+            color: #29496b;
+        }
+
+        .btn-secondary:hover {
+            background: #dfeaf5;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 340px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .main-panel {
+            min-width: 0;
+        }
+
+        .organ-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .organ-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid rgba(219, 228, 238, 0.7);
+        }
+
+        .organ-header {
+            width: 100%;
+            border: none;
+            background: white;
+            padding: 20px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .organ-header:hover {
+            background: #f9fbfd;
+        }
+
+        .organ-title-wrap h2 {
+            margin: 0 0 6px;
+            font-size: 1.6rem;
+            color: #29496b;
+        }
+
+        .organ-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .meta-badge {
+            font-size: 0.88rem;
+            color: var(--muted);
+            background: #f3f7fb;
+            border: 1px solid var(--line);
+            padding: 5px 10px;
+            border-radius: 999px;
+        }
+
+        .accordion-icon {
+            font-size: 1.4rem;
+            color: #5e7692;
+            transition: transform 0.2s ease;
+            margin-left: 10px;
+        }
+
+        .organ-card.open .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .organ-body {
+            display: none;
+            padding: 0 22px 22px;
+            border-top: 1px solid var(--line);
+        }
+
+        .organ-card.open .organ-body {
+            display: block;
+        }
+
+        .probability-section {
+            margin-top: 18px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            overflow: hidden;
+        }
+
+        .probability-header {
+            padding: 12px 16px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .probability-high .probability-header {
+            background: var(--high-bg);
+            color: #2c5c8b;
+        }
+
+        .probability-mid .probability-header {
+            background: var(--mid-bg);
+            color: #486178;
+        }
+
+        .finding-list {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: white;
+        }
+
+        .finding-item {
+            border: 1px solid #e4ebf2;
+            border-radius: 14px;
+            padding: 12px 14px;
+            transition: 0.2s ease;
+            background: #fff;
+        }
+
+        .finding-item:hover {
+            border-color: #bfd1e2;
+            background: #fbfdff;
+        }
+
+        .finding-item.selected {
+            background: var(--selected);
+            border-color: #b7d7bb;
+        }
+
+        .finding-item.hidden {
+            display: none;
+        }
+
+        .finding-label {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .finding-label input[type="checkbox"] {
+            margin-top: 3px;
+            transform: scale(1.15);
+            flex-shrink: 0;
+        }
+
+        .finding-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .finding-name {
+            font-size: 1rem;
+            line-height: 1.45;
+            color: #243648;
+        }
+
+        .finding-points {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.87rem;
+            color: #47637f;
+            background: #eef4f9;
+            border-radius: 999px;
+            padding: 5px 10px;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 22px;
+        }
+
+        .summary-card h3 {
+            margin-top: 0;
+            margin-bottom: 18px;
+            font-size: 1.5rem;
+            color: #29496b;
+        }
+
+        .score-display {
+            background: #f5f9fd;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .score-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #243b5a;
+            margin-bottom: 6px;
+        }
+
+        .score-label {
+            color: var(--muted);
+            font-size: 0.98rem;
+        }
+
+        .summary-stat {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.96rem;
+        }
+
+        .summary-stat:last-of-type {
+            border-bottom: none;
+        }
+
+        .interpretation-box {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 14px;
+            background: var(--primary-soft);
+            color: #24496e;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .selected-findings-box {
+            margin-top: 18px;
+        }
+
+        .selected-findings-box h4 {
+            margin: 0 0 10px;
+            color: #29496b;
+            font-size: 1.05rem;
+        }
+
+        .selected-findings-list {
+            margin: 0;
+            padding-left: 18px;
+            color: #415364;
+        }
+
+        .selected-findings-list li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .submit-row {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .submit-row button {
+            flex: 1;
+            min-width: 130px;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.45;
+        }
+
+        @media (max-width: 1100px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .page {
+                padding: 18px 14px 30px;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .organ-header {
+                padding: 16px;
+            }
+
+            .organ-body {
+                padding: 0 16px 16px;
+            }
+
+            .toolbar {
+                padding: 14px;
+            }
+
+            .search-box input,
+            .filter-box select {
+                min-width: 100%;
+            }
+
+            .toolbar-left,
+            .toolbar-right {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="hero">
+            <h1>Sarcoidosis Clinical Scoring System</h1>
+            <p class="subtitle">
+                Evidence-based multi-organ diagnostic assessment tool for evaluating the likelihood of sarcoidosis
+            </p>
+
+            <div class="score-legend">
+                <div class="legend-pill">0–3: Unlikely</div>
+                <div class="legend-pill">4–7: Low likelihood</div>
+                <div class="legend-pill">8–11: Moderate likelihood</div>
+                <div class="legend-pill">12+: High likelihood</div>
+            </div>
+        </div>
+
+        <form method="POST" id="scoreForm">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search findings or organ systems...">
+                    </div>
+
+                    <div class="filter-box">
+                        <select id="pointsFilter">
+                            <option value="all">Show all findings</option>
+                            <option value="3">Only 3-point findings</option>
+                            <option value="2">Only 2-point findings</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="toolbar-right">
+                    <button type="button" class="btn-secondary" id="expandAllBtn">Expand all</button>
+                    <button type="button" class="btn-secondary" id="collapseAllBtn">Collapse all</button>
+                    <button type="button" class="btn-secondary" id="clearAllBtn">Clear all</button>
+                </div>
+            </div>
+
+            <div class="layout">
+                <div class="main-panel">
+                    <div class="organ-list" id="organList">
+                        {% for organ_name, organ_data in organ_systems.items() %}
+                            {% set high_count = organ_data.high|length if organ_data.high else 0 %}
+                            {% set mid_count = organ_data.mid|length if organ_data.mid else 0 %}
+                            {% set total_count = high_count + mid_count %}
+
+                            <div class="organ-card open" data-organ="{{ organ_name|lower }}">
+                                <button type="button" class="organ-header">
+                                    <div class="organ-title-wrap">
+                                        <h2>{{ organ_name }}</h2>
+                                        <div class="organ-meta">
+                                            <span class="meta-badge">{{ total_count }} finding{% if total_count != 1 %}s{% endif %}</span>
+                                            {% if high_count %}
+                                                <span class="meta-badge">{{ high_count }} high-probability</span>
+                                            {% endif %}
+                                            {% if mid_count %}
+                                                <span class="meta-badge">{{ mid_count }} somewhat probable</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <span class="accordion-icon">⌃</span>
+                                </button>
+
+                                <div class="organ-body">
+                                    {% if organ_data.high %}
+                                        <div class="probability-section probability-high">
+                                            <div class="probability-header">Highly Probable for Sarcoidosis (3 points)</div>
+                                            <div class="finding-list">
+                                                {% for key, item in organ_data.high.items() %}
+                                                    <div class="finding-item {% if key in selected %}selected{% endif %}" data-points="{{ item.points }}" data-text="{{ (organ_name ~ ' ' ~ item.label)|lower }}">
+                                                        <label class="finding-label">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="symptoms"
+                                                                value="{{ key }}"
+                                                                data-label="{{ item.label }}"
+                                                                data-organ="{{ organ_name }}"
+                                                                data-points="{{ item.points }}"
+                                                                {% if key in selected %}checked{% endif %}
+                                                            >
+                                                            <div class="finding-text">
+                                                                <div class="finding-name">{{ item.label }}</div>
+                                                                <div class="finding-points">{{ item.points }} points</div>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if organ_data.mid %}
+                                        <div class="probability-section probability-mid">
+                                            <div class="probability-header">Somewhat Probable for Sarcoidosis (2 points)</div>
+                                            <div class="finding-list">
+                                                {% for key, item in organ_data.mid.items() %}
+                                                    <div class="finding-item {% if key in selected %}selected{% endif %}" data-points="{{ item.points }}" data-text="{{ (organ_name ~ ' ' ~ item.label)|lower }}">
+                                                        <label class="finding-label">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="symptoms"
+                                                                value="{{ key }}"
+                                                                data-label="{{ item.label }}"
+                                                                data-organ="{{ organ_name }}"
+                                                                data-points="{{ item.points }}"
+                                                                {% if key in selected %}checked{% endif %}
+                                                            >
+                                                            <div class="finding-text">
+                                                                <div class="finding-name">{{ item.label }}</div>
+                                                                <div class="finding-points">{{ item.points }} points</div>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <aside class="sidebar">
+                    <div class="summary-card">
+                        <h3>Current Summary</h3>
+
+                        <div class="score-display">
+                            <div class="score-number" id="liveScore">{{ score if score else 0 }}</div>
+                            <div class="score-label">Current total score</div>
+                        </div>
+
+                        <div class="summary-stat">
+                            <span>Selected findings</span>
+                            <strong id="selectedCount">0</strong>
+                        </div>
+                        <div class="summary-stat">
+                            <span>Organ systems with selections</span>
+                            <strong id="organCount">0</strong>
+                        </div>
+
+                        <div class="interpretation-box" id="liveInterpretation">
+                            {% if result %}
+                                {{ result }}
+                            {% else %}
+                                Unlikely sarcoidosis
+                            {% endif %}
+                        </div>
+
+                        <div class="selected-findings-box">
+                            <h4>Selected Findings</h4>
+                            <div id="selectedFindingsContainer">
+
+    <div class="empty-state" id="emptySelectedState">
+        No findings selected yet.
+    </div>
+
+    <ul class="selected-findings-list" id="selectedFindingsList" style="display:none;">
+        {% if selected_findings %}
+            {% for finding in selected_findings %}
+                <li>
+                    <strong>{{ finding.organ }}</strong>:
+                    {{ finding.label }} ({{ finding.points }} points)
+                </li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+
+</div>
+                        </div>
+
+                        <div class="submit-row">
+                            <button type="submit" class="btn-primary">Calculate Score</button>
+                            <button type="button" class="btn-secondary" id="printBtn">Print</button>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </form>
+    </div>
+
+    <script>
+    const organCards = document.querySelectorAll(".organ-card");
+    const organHeaders = document.querySelectorAll(".organ-header");
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="symptoms"]');
+    const searchInput = document.getElementById("searchInput");
+    const pointsFilter = document.getElementById("pointsFilter");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const expandAllBtn = document.getElementById("expandAllBtn");
+    const collapseAllBtn = document.getElementById("collapseAllBtn");
+    const liveScore = document.getElementById("liveScore");
+    const selectedCount = document.getElementById("selectedCount");
+    const organCount = document.getElementById("organCount");
+    const liveInterpretation = document.getElementById("liveInterpretation");
+    const selectedFindingsList = document.getElementById("selectedFindingsList");
+    const printBtn = document.getElementById("printBtn");
+
+    let emptyState = document.getElementById("emptySelectedState");
+    if (!emptyState && selectedFindingsList) {
+        emptyState = document.createElement("div");
+        emptyState.id = "emptySelectedState";
+        emptyState.className = "empty-state";
+        emptyState.textContent = "No findings selected yet.";
+        selectedFindingsList.parentNode.insertBefore(emptyState, selectedFindingsList);
+    }
+
+    organHeaders.forEach(header => {
+        header.addEventListener("click", () => {
+            const card = header.closest(".organ-card");
+            card.classList.toggle("open");
+        });
+    });
+
+    if (expandAllBtn) {
+        expandAllBtn.addEventListener("click", () => {
+            organCards.forEach(card => card.classList.add("open"));
+        });
+    }
+
+    if (collapseAllBtn) {
+        collapseAllBtn.addEventListener("click", () => {
+            organCards.forEach(card => card.classList.remove("open"));
+        });
+    }
+
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener("click", () => {
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                const item = cb.closest(".finding-item");
+                if (item) {
+                    item.classList.remove("selected");
+                }
+            });
+            updateLiveSummary();
+        });
+    }
+
+    if (printBtn) {
+        printBtn.addEventListener("click", () => {
+            window.print();
+        });
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener("change", () => {
+            const item = cb.closest(".finding-item");
+            if (item) {
+                item.classList.toggle("selected", cb.checked);
+            }
+            updateLiveSummary();
+        });
+    });
+
+    if (searchInput) {
+        searchInput.addEventListener("input", filterFindings);
+    }
+
+    if (pointsFilter) {
+        pointsFilter.addEventListener("change", filterFindings);
+    }
+
+    function getInterpretation(score) {
+        if (score >= 12) return "High likelihood of sarcoidosis";
+        if (score >= 8) return "Moderate likelihood of sarcoidosis";
+        if (score >= 4) return "Low likelihood — consider further testing";
+        return "Unlikely sarcoidosis";
+    }
+
+    function updateLiveSummary() {
+        const checked = Array.from(checkboxes).filter(cb => cb.checked);
+        let total = 0;
+        const organSet = new Set();
+
+        checked.forEach(cb => {
+            total += Number(cb.dataset.points || 0);
+            organSet.add(cb.dataset.organ);
+        });
+
+        if (liveScore) {
+            liveScore.textContent = total;
+        }
+
+        if (selectedCount) {
+            selectedCount.textContent = checked.length;
+        }
+
+        if (organCount) {
+            organCount.textContent = organSet.size;
+        }
+
+        if (liveInterpretation) {
+            liveInterpretation.textContent = getInterpretation(total);
+        }
+
+        if (!selectedFindingsList) return;
+
+        selectedFindingsList.innerHTML = "";
+
+        if (checked.length === 0) {
+            selectedFindingsList.style.display = "none";
+            if (emptyState) {
+                emptyState.style.display = "block";
+            }
+        } else {
+            checked.forEach(cb => {
+                const li = document.createElement("li");
+                li.innerHTML = `<strong>${cb.dataset.organ}</strong>: ${cb.dataset.label} (${cb.dataset.points} points)`;
+                selectedFindingsList.appendChild(li);
+            });
+
+            if (emptyState) {
+                emptyState.style.display = "none";
+            }
+            selectedFindingsList.style.display = "block";
+        }
+    }
+
+    function filterFindings() {
+        const searchValue = searchInput ? searchInput.value.trim().toLowerCase() : "";
+        const pointValue = pointsFilter ? pointsFilter.value : "all";
+
+        organCards.forEach(card => {
+            const findings = card.querySelectorAll(".finding-item");
+            let visibleFindings = 0;
+
+            findings.forEach(item => {
+                const itemText = item.dataset.text || "";
+                const itemPoints = item.dataset.points || "";
+                const matchesSearch = itemText.includes(searchValue);
+                const matchesPoints = pointValue === "all" || itemPoints === pointValue;
+
+                if (matchesSearch && matchesPoints) {
+                    item.classList.remove("hidden");
+                    visibleFindings++;
+                } else {
+                    item.classList.add("hidden");
+                }
+            });
+
+            card.style.display = visibleFindings > 0 ? "block" : "none";
+        });
+    }
+
+    updateLiveSummary();
+
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js")
+            .then(() => console.log("Service Worker Registered"))
+            .catch(error => console.log("Service Worker registration failed:", error));
+    }
+</script>
+</body>
+</html>
