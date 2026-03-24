@@ -1,4 +1,5 @@
-const CACHE_NAME = "sarcoidosis-pwa-v3";  "/",
+const CACHE_NAME = "sarcoidosis-pwa-v2";const URLS_TO_CACHE = [
+  "/",
   "/manifest.json",
   "/static/icon-192.png",
   "/static/icon-512.png"
