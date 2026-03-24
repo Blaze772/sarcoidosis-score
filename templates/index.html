@@ -606,22 +606,42 @@
                         </div>
 
                         <div class="interpretation-box" id="liveInterpretation">
-                            {% if result %}
-                                {{ result }}
-                            {% else %}
-                                Unlikely sarcoidosis
-                            {% endif %}
-                        </div>
+    {% if result %}
+        {{ result }}
+    {% else %}
+        Select findings and press Calculate Score
+    {% endif %}
+</div>
 
                         <div class="selected-findings-box">
                             <h4>Selected Findings</h4>
                             <div id="selectedFindingsContainer">
 
-    <div class="empty-state" id="emptySelectedState">
+    <div class="empty-state" id="emptySelectedState" {% if selected_findings %}style="display:none;"{% endif %}>
         No findings selected yet.
     </div>
 
-    <ul class="selected-findings-list" id="selectedFindingsList" style="display:none;">
+    <ul class="selected-findings-list" id="selectedFindingsList" {% if not selected_findings %}style="display:none;"{% endif %}>
+        {% if selected_findings %}
+            {% for finding in selected_findings %}
+                <li>
+                    <strong>{{ finding.organ }}</strong>:
+                    {{ finding.label }} ({{ finding.points }} points)
+                </li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+</div>
+        {% if selected_findings %}
+            {% for finding in selected_findings %}
+                <li>
+                    <strong>{{ finding.organ }}</strong>:
+                    {{ finding.label }} ({{ finding.points }} points)
+                </li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+</div>
         {% if selected_findings %}
             {% for finding in selected_findings %}
                 <li>
@@ -755,9 +775,9 @@
             organCount.textContent = organSet.size;
         }
 
-        if (liveInterpretation) {
-            liveInterpretation.textContent = getInterpretation(total);
-        }
+        if (liveInterpretation && !{{ 'true' if result else 'false' }}) {
+    liveInterpretation.textContent = "Select findings and press Calculate Score";
+}
 
         if (!selectedFindingsList) return;
 
