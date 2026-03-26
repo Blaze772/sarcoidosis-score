@@ -458,6 +458,40 @@
                 width: 100%;
             }
         }
+
+
+        @media print {
+            .toolbar,
+            .main-panel,
+            .hero,
+            .submit-row {
+                display: none !important;
+            }
+
+            .layout {
+                display: block;
+            }
+
+            .sidebar {
+                position: static;
+                width: 100%;
+                max-width: 500px;
+                margin: 0 auto;
+            }
+
+            .summary-card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+
+            body {
+                background: white;
+            }
+
+            .page {
+                padding: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -751,9 +785,7 @@
         }
 
         if (liveInterpretation) {
-    liveInterpretation.textContent = total > 0
-        ? getInterpretation(total)
-        : "Select findings and press Calculate Score";
+    liveInterpretation.textContent = "Select findings and press Calculate Score";
 }
 
         if (!selectedFindingsList) return;
