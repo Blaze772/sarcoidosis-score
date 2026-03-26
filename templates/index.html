@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sarcoidosis Clinical Scoring System</title>
 
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#2f5d8a">
-    <link rel="apple-touch-icon" href="/static/icon-192.png">
 
     <style>
 
@@ -810,11 +807,6 @@
 
     updateLiveSummary();
 
-    if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/service-worker.js")
-            .then(() => console.log("Service Worker Registered"))
-            .catch(error => console.log("Service Worker registration failed:", error));
-    }
 </script>
 </body>
 </html>
