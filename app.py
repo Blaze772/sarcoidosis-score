@@ -1,14 +1,6 @@
-from flask import Flask, render_template, request, send_from_directory, jsonify
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
-
-@app.route("/manifest.json")
-def manifest():
-    return send_from_directory("static", "manifest.json")
-
-@app.route("/service-worker.js")
-def service_worker():
-    return send_from_directory("static", "service-worker.js")
 
 # All organ systems and findings
 organ_systems = {
