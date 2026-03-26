@@ -753,8 +753,10 @@
             organCount.textContent = organSet.size;
         }
 
-        if (liveInterpretation && !{{ 'true' if has_calculated else 'false' }}) {
-    liveInterpretation.textContent = "Select findings and press Calculate Score";
+        if (liveInterpretation) {
+    liveInterpretation.textContent = total > 0
+        ? getInterpretation(total)
+        : "Select findings and press Calculate Score";
 }
 
         if (!selectedFindingsList) return;
