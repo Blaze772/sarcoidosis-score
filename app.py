@@ -359,11 +359,13 @@ def index():
     score = 0
     selected = []
     selected_findings = []
+    has_calculated = False
 
     if request.method == "POST":
         selected = request.form.getlist("symptoms")
         score, selected_findings = calculate_score(selected)
         result = interpret(score)
+        has_calculated = True
 
     return render_template(
         "index.html",
@@ -371,7 +373,8 @@ def index():
         score=score,
         result=result,
         selected=selected,
-        selected_findings=selected_findings
+        selected_findings=selected_findings,
+        has_calculated=has_calculated
     )
 
 
