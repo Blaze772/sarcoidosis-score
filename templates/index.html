@@ -588,82 +588,58 @@
                 </div>
 
                 <aside class="sidebar">
-                    <div class="summary-card">
-                        <h3>Current Summary</h3>
+    <div class="summary-card">
+        <h3>Current Summary</h3>
 
-                        <div class="score-display">
-                            <div class="score-number" id="liveScore">{{ score if score else 0 }}</div>
-                            <div class="score-label">Current total score</div>
-                        </div>
-
-                        <div class="summary-stat">
-                            <span>Selected findings</span>
-                            <strong id="selectedCount">0</strong>
-                        </div>
-                        <div class="summary-stat">
-                            <span>Organ systems with selections</span>
-                            <strong id="organCount">0</strong>
-                        </div>
-
-                        <div class="interpretation-box" id="liveInterpretation">
-    {% if has_calculated %}
-        {{ result }}
-    {% else %}
-        Select findings and press Calculate Score
-    {% endif %}
-</div>
-
-                        <div class="selected-findings-box">
-    <h4>Selected Findings</h4>
-    <div id="selectedFindingsContainer">
-        <div class="empty-state" id="emptySelectedState" {% if selected_findings %}style="display:none;"{% endif %}>
-            No findings selected yet.
+        <div class="score-display">
+            <div class="score-number" id="liveScore">{{ score if score else 0 }}</div>
+            <div class="score-label">Current total score</div>
         </div>
 
-        <ul class="selected-findings-list" id="selectedFindingsList" {% if not selected_findings %}style="display:none;"{% endif %}>
-            {% if selected_findings %}
-                {% for finding in selected_findings %}
-                    <li>
-                        <strong>{{ finding.organ }}</strong>:
-                        {{ finding.label }} ({{ finding.points }} points)
-                    </li>
-                {% endfor %}
+        <div class="summary-stat">
+            <span>Selected findings</span>
+            <strong id="selectedCount">0</strong>
+        </div>
+
+        <div class="summary-stat">
+            <span>Organ systems with selections</span>
+            <strong id="organCount">0</strong>
+        </div>
+
+        <div class="interpretation-box" id="liveInterpretation">
+            {% if has_calculated %}
+                {{ result }}
+            {% else %}
+                Select findings and press Calculate Score
             {% endif %}
-        </ul>
-    </div>
-</div>
+        </div>
 
+        <div class="selected-findings-box">
+            <h4>Selected Findings</h4>
+            <div id="selectedFindingsContainer">
+                <div class="empty-state" id="emptySelectedState" {% if selected_findings %}style="display:none;"{% endif %}>
+                    No findings selected yet.
+                </div>
 
-        {% if selected_findings %}
-            {% for finding in selected_findings %}
-                <li>
-                    <strong>{{ finding.organ }}</strong>:
-                    {{ finding.label }} ({{ finding.points }} points)
-                </li>
-            {% endfor %}
-        {% endif %}
-    </aside>
-</div>
-        {% if selected_findings %}
-            {% for finding in selected_findings %}
-                <li>
-                    <strong>{{ finding.organ }}</strong>:
-                    {{ finding.label }} ({{ finding.points }} points)
-                </li>
-            {% endfor %}
-        {% endif %}
-    </form>
-
-</div>
-                        </div>
-
-                        <div class="submit-row">
-                            <button type="submit" class="btn-primary">Calculate Score</button>
-                            <button type="button" class="btn-secondary" id="printBtn">Print</button>
-                        </div>
-                    </div>
-                </aside>
+                <ul class="selected-findings-list" id="selectedFindingsList" {% if not selected_findings %}style="display:none;"{% endif %}>
+                    {% if selected_findings %}
+                        {% for finding in selected_findings %}
+                            <li>
+                                <strong>{{ finding.organ }}</strong>:
+                                {{ finding.label }} ({{ finding.points }} points)
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                </ul>
             </div>
+        </div>
+
+        <div class="submit-row">
+            <button type="submit" class="btn-primary">Calculate Score</button>
+            <button type="button" class="btn-secondary" id="printBtn">Print</button>
+        </div>
+    </div>
+</aside>         </div>
         </form>
     </div>
 
