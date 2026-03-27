@@ -1,6 +1,14 @@
-from flask import Flask, render_template, request
-
+from flask import Flask, render_template, request, redirect, url_for, session
 app = Flask(__name__)
+app.secret_key = "sarcoidosis-scoring-key-2024"  # ← add this line
+
+@app.after_request
+def add_no_cache_headers(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
 
 # All organ systems and findings
 organ_systems = {
@@ -347,17 +355,23 @@ def interpret(score):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    result = None
-    score = 0
-    selected = []
-    selected_findings = []
-    has_calculated = False
-
     if request.method == "POST":
         selected = request.form.getlist("symptoms")
         score, selected_findings = calculate_score(selected)
         result = interpret(score)
-        has_calculated = True
+        # Store in session then redirect to GET
+        session["score"] = score
+        session["result"] = result
+        session["selected"] = selected
+        session["selected_findings"] = selected_findings
+        return redirect(url_for("index"))
+
+    # GET request — pull from session if available
+    score = session.pop("score", 0)
+    result = session.pop("result", None)
+    selected = session.pop("selected", [])
+    selected_findings = session.pop("selected_findings", [])
+    has_calculated = result is not None
 
     return render_template(
         "index.html",
