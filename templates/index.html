@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sarcoidosis Clinical Scoring System</title>
-
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Sarcoidosis Clinical Scoring System</title> 
 
     <style>
 
@@ -719,17 +721,20 @@
     }
 
     if (clearAllBtn) {
-        clearAllBtn.addEventListener("click", () => {
-            checkboxes.forEach(cb => {
-                cb.checked = false;
-                const item = cb.closest(".finding-item");
-                if (item) {
-                    item.classList.remove("selected");
-                }
-            });
-            updateLiveSummary();
+    clearAllBtn.addEventListener("click", () => {
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+            const item = cb.closest(".finding-item");
+            if (item) {
+                item.classList.remove("selected");
+            }
         });
-    }
+        if (liveInterpretation) {
+            liveInterpretation.textContent = "Select findings and press Calculate Score";
+        }
+        updateLiveSummary();
+    });
+}
 
     if (printBtn) {
         printBtn.addEventListener("click", () => {
@@ -763,77 +768,51 @@
     }
 
     function updateLiveSummary() {
-        const checked = Array.from(checkboxes).filter(cb => cb.checked);
-        let total = 0;
-        const organSet = new Set();
+    const checked = Array.from(checkboxes).filter(cb => cb.checked);
+    let total = 0;
+    const organSet = new Set();
 
+    checked.forEach(cb => {
+        total += Number(cb.dataset.points || 0);
+        organSet.add(cb.dataset.organ);
+    });
+
+    if (liveScore) {
+        liveScore.textContent = total;
+    }
+
+    if (selectedCount) {
+        selectedCount.textContent = checked.length;
+    }
+
+    if (organCount) {
+        organCount.textContent = organSet.size;
+    }
+
+    // DO NOT touch liveInterpretation here — Flask controls it
+
+    if (!selectedFindingsList) return;
+
+    selectedFindingsList.innerHTML = "";
+
+    if (checked.length === 0) {
+        selectedFindingsList.style.display = "none";
+        if (emptyState) {
+            emptyState.style.display = "block";
+        }
+    } else {
         checked.forEach(cb => {
-            total += Number(cb.dataset.points || 0);
-            organSet.add(cb.dataset.organ);
+            const li = document.createElement("li");
+            li.innerHTML = `<strong>${cb.dataset.organ}</strong>: ${cb.dataset.label} (${cb.dataset.points} points)`;
+            selectedFindingsList.appendChild(li);
         });
 
-        if (liveScore) {
-            liveScore.textContent = total;
+        if (emptyState) {
+            emptyState.style.display = "none";
         }
-
-        if (selectedCount) {
-            selectedCount.textContent = checked.length;
-        }
-
-        if (organCount) {
-            organCount.textContent = organSet.size;
-        }
-
-
-        if (!selectedFindingsList) return;
-
-        selectedFindingsList.innerHTML = "";
-
-        if (checked.length === 0) {
-            selectedFindingsList.style.display = "none";
-            if (emptyState) {
-                emptyState.style.display = "block";
-            }
-        } else {
-            checked.forEach(cb => {
-                const li = document.createElement("li");
-                li.innerHTML = `<strong>${cb.dataset.organ}</strong>: ${cb.dataset.label} (${cb.dataset.points} points)`;
-                selectedFindingsList.appendChild(li);
-            });
-
-            if (emptyState) {
-                emptyState.style.display = "none";
-            }
-            selectedFindingsList.style.display = "block";
-        }
+        selectedFindingsList.style.display = "block";
     }
-
-    function filterFindings() {
-        const searchValue = searchInput ? searchInput.value.trim().toLowerCase() : "";
-        const pointValue = pointsFilter ? pointsFilter.value : "all";
-
-        organCards.forEach(card => {
-            const findings = card.querySelectorAll(".finding-item");
-            let visibleFindings = 0;
-
-            findings.forEach(item => {
-                const itemText = item.dataset.text || "";
-                const itemPoints = item.dataset.points || "";
-                const matchesSearch = itemText.includes(searchValue);
-                const matchesPoints = pointValue === "all" || itemPoints === pointValue;
-
-                if (matchesSearch && matchesPoints) {
-                    item.classList.remove("hidden");
-                    visibleFindings++;
-                } else {
-                    item.classList.add("hidden");
-                }
-            });
-
-            card.style.display = visibleFindings > 0 ? "block" : "none";
-        });
-    }
-
+}
     updateLiveSummary();
 
 </script>
