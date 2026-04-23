@@ -641,12 +641,14 @@
             <p class="subtitle">
                 Evidence-based multi-organ diagnostic assessment tool for evaluating the likelihood of sarcoidosis
             </p>
+            <p class="subtitle" style="margin-top: 10px; font-style: italic; color: #c0392b; font-size: 0.97rem;">
+                In patients with beryllium exposure, ANCA or CVID SDS score is not reliable to diagnose Sarcoidosis
+            </p>
 
             <div class="score-legend">
-                <div class="legend-pill">0–3: Unlikely</div>
-                <div class="legend-pill">4–7: Low likelihood</div>
-                <div class="legend-pill">8–11: Moderate likelihood</div>
-                <div class="legend-pill">12+: High likelihood</div>
+                <div class="legend-pill">&gt;9: High likelihood</div>
+                <div class="legend-pill">3–9: Probable sarcoidosis, biopsy needed</div>
+                <div class="legend-pill">&lt;3: Low likelihood</div>
             </div>
         </div>
 
@@ -932,10 +934,9 @@
     }
 
     function getInterpretation(score) {
-        if (score >= 12) return "High likelihood of sarcoidosis";
-        if (score >= 8)  return "Moderate likelihood of sarcoidosis";
-        if (score >= 4)  return "Low likelihood — consider further testing";
-        return "Unlikely sarcoidosis";
+        if (score > 9)  return "High likelihood of sarcoidosis";
+        if (score >= 3) return "Probable sarcoidosis — biopsy needed";
+        return "Low likelihood of sarcoidosis";
     }
 
     function updateLiveSummary() {
