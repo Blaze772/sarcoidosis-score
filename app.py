@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, session
 app = Flask(__name__)
 app.secret_key = "sarcoidosis-scoring-key-2024"  # ← add this line
 
+# Reference: Jeny F et al, Ann Am Thorac Soc, 2023;20:371 PMID: 36322428
+# Evidence-based multi-organ diagnostic assessment tool for evaluating the likelihood of sarcoidosis
+
 @app.after_request
 def add_no_cache_headers(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -66,7 +69,7 @@ organ_systems = {
     "Brain/Nerve": {
         "high": {
             "brain_nerve_granulomatous_neuro_syndrome": {
-                "label": "Clinical syndrome consistent with granulomatous inflammation of the neurologic system",
+                "label": "Clinical syndrome consistent with granulomatous inflammation of the neurologic system and an abnormal MRI or CSF findings characteristic of neurosarcoidosis",
                 "points": 3
             },
         },
@@ -343,14 +346,12 @@ def calculate_score(selected):
 
 
 def interpret(score):
-    if score >= 12:
+    if score > 9:
         return "High likelihood of sarcoidosis"
-    elif score >= 8:
-        return "Moderate likelihood of sarcoidosis"
-    elif score >= 4:
-        return "Low likelihood — consider further testing"
+    elif score >= 3:
+        return "Probable sarcoidosis — biopsy needed"
     else:
-        return "Unlikely sarcoidosis"
+        return "Low likelihood of sarcoidosis"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -386,4 +387,3 @@ def index():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
